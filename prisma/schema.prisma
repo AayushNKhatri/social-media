@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int       @id @default(autoincrement())
+  email            String    @unique
+  password_hash    String
+  username         String    @unique
+  first_name       String
+  last_name        String
+  profile_image_url String
+  bio              String
+  is_verified      Boolean
+  token            String
+  token_expiration DateTime
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  profiles         Profile[]
+  posts            Post[]
+  postLikes        PostLike[]
+  postComments     PostComment[]
+  commentLikes     CommentLike[]
+  following        Follower[] @relation("following")
+  followers        Follower[] @relation("follower")
+  chatParticipants ChatParticipant[]
+  sentMessages     Message[] @relation("sentMessages")
+  notifications    Notification[] @relation("notifiedUser")
+  notificationsFrom Notification[] @relation("notifier")
+}
+
+model Profile {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    Int
+  location   String
+  website    String
+  birthdate  DateTime
+  interests  Json
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Post {
+  id             Int           @id @default(autoincrement())
+  user           User          @relation(fields: [user_id], references: [id])
+  user_id        Int
+  caption        String
+  image_url      String?
+  video_url      String?
+  type           String
+  likes_count    Int
+  comments_count Int
+  shares_count   Int
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+
+  postLikes      PostLike[]
+  postComments   PostComment[]
+}
+
+model PostLike {
+  id         Int      @id @default(autoincrement())
+  post       Post     @relation(fields: [post_id], references: [id])
+  post_id    Int
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    Int
+  created_at DateTime @default(now())
+}
+
+model PostComment {
+  id           Int           @id @default(autoincrement())
+  post         Post          @relation(fields: [post_id], references: [id])
+  post_id      Int
+  user         User          @relation(fields: [user_id], references: [id])
+  user_id      Int
+  comment      String
+  likes_count  Int
+  created_at   DateTime      @default(now())
+
+  commentLikes CommentLike[]
+}
+
+model CommentLike {
+  id          Int          @id @default(autoincrement())
+  comment     PostComment  @relation(fields: [comment_id], references: [id])
+  comment_id  Int
+  user        User         @relation(fields: [user_id], references: [id])
+  user_id     Int
+  created_at  DateTime     @default(now())
+}
+
+model Follower {
+  id            Int    @id @default(autoincrement())
+  follower      User   @relation("follower", fields: [follower_id], references: [id])
+  follower_id   Int
+  following     User   @relation("following", fields: [following_id], references: [id])
+  following_id  Int
+  created_at    DateTime @default(now())
+}
+
+model ChatRoom {
+  id             Int               @id @default(autoincrement())
+  type           String
+  name           String?
+  created_at     DateTime          @default(now())
+
+  participants   ChatParticipant[]
+  messages       Message[]
+}
+
+model ChatParticipant {
+  id                   Int       @id @default(autoincrement())
+  chat_room            ChatRoom @relation(fields: [chat_room_id], references: [id])
+  chat_room_id         Int
+  user                 User     @relation(fields: [user_id], references: [id])
+  user_id              Int
+  last_read_message_id Int?
+  joined_at            DateTime @default(now())
+}
+
+model Message {
+  id            Int       @id @default(autoincrement())
+  chat_room     ChatRoom  @relation(fields: [chat_room_id], references: [id])
+  chat_room_id  Int
+  sender        User      @relation("sentMessages", fields: [sender_id], references: [id])
+  sender_id     Int
+  text          String?
+  image_url     String?
+  file_url      String?
+  seen          Boolean
+  created_at    DateTime  @default(now())
+}
+
+model Notification {
+  id            Int      @id @default(autoincrement())
+  user          User     @relation("notifiedUser", fields: [user_id], references: [id])
+  user_id       Int
+  from_user     User     @relation("notifier", fields: [from_user_id], references: [id])
+  from_user_id  Int
+  type          String
+  message       String
+  url           String
+  read          Boolean
+  created_at    DateTime @default(now())
+}
