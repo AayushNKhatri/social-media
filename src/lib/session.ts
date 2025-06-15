@@ -25,7 +25,7 @@ export async function decrypt(session: string | undefined = '') {
     }   
 }
 
-export async function createSession(userId: string) {
+export async function createSession(userId: number) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 1 hour from now
   const session = await encrypt({userId , expiresAt})
   const cookiesStore = await cookies()
@@ -34,7 +34,9 @@ export async function createSession(userId: string) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         expires: expiresAt,
-    })  
+    })
+    
+    return session
 }
 
 export async function updateSession() {
