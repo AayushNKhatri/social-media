@@ -1,16 +1,29 @@
 'use client';
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation';
 import { EyeIcon, EyeOffIcon, UserIcon, LockIcon } from 'lucide-react'
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const handleSubmit = (e: React.FormEvent) => {
+  const route = useRouter()
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    // Simulate API call
+    try{
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json',},
+        body: JSON.stringify({email, password}),
+      })
+      console.log(res)
+      route.push('/')
+    }
+    catch(err){
+        console.log(`Error${err}`)
+    }
     setTimeout(() => {
       setIsLoading(false)
       alert('Login successful!')
@@ -57,7 +70,7 @@ const Login = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 px-3 border text-black"
                   placeholder="you@example.com"
                 />
               </div>
@@ -84,7 +97,7 @@ const Login = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 sm:text-sm border-gray-300 rounded-md py-2 px-3 border text-black"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                   <button

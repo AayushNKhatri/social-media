@@ -28,5 +28,5 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({error: 'Please enter valid email or password'}, {status: 400})
     const token = await createSession(user.id)
     return NextResponse.json({token: token}, {status:200})
-
+    
 }

@@ -9,6 +9,7 @@ import {
   UserPlusIcon,
 } from 'lucide-react'
 import Link from 'next/link'
+import { POST } from '../api/auth/login/route'
 const Register = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -32,7 +33,7 @@ const Register = () => {
       setPasswordError('')
     }
   }
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -40,7 +41,19 @@ const Register = () => {
       return
     }
     setIsLoading(true)
-    // Simulate API call
+    try{
+        const res = await fetch('/api/auth/register' ,{
+        method: 'POST',
+        headers: {'Content-Type': 'application/json',},
+        body: JSON.stringify(formData),
+        })
+        if(res.status !== 200)
+          return "error"
+    }
+    catch(err){
+      console.error(`Error ${err}`)
+    }
+
     setTimeout(() => {
       setIsLoading(false)
       alert('Registration successful!')
