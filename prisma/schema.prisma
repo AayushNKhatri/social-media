@@ -9,31 +9,40 @@ datasource db {
 }
 
 model User {
-  id               Int       @id @default(autoincrement())
-  email            String    @unique
-  password_hash    String
-  username         String    @unique
-  first_name       String
-  last_name        String
+  id                Int      @id @default(autoincrement())
+  email             String   @unique
+  password_hash     String
+  username          String   @unique
+  first_name        String
+  last_name         String
   profile_image_url String
-  bio              String
-  is_verified      Boolean
-  token            String
-  token_expiration DateTime
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
+  bio               String
+  is_verified       Boolean
+  token             String
+  token_expiration  DateTime
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
 
-  profiles         Profile[]
-  posts            Post[]
-  postLikes        PostLike[]
-  postComments     PostComment[]
-  commentLikes     CommentLike[]
-  following        Follower[] @relation("following")
-  followers        Follower[] @relation("follower")
-  chatParticipants ChatParticipant[]
-  sentMessages     Message[] @relation("sentMessages")
-  notifications    Notification[] @relation("notifiedUser")
-  notificationsFrom Notification[] @relation("notifier")
+  profiles          Profile[]
+  posts             Post[]
+  postLikes         PostLike[]
+  postComments      PostComment[]
+  commentLikes      CommentLike[]
+  following         Follower[]        @relation("following")
+  followers         Follower[]        @relation("follower")
+  chatParticipants  ChatParticipant[]
+  sentMessages      Message[]         @relation("sentMessages")
+  notifications     Notification[]    @relation("notifiedUser")
+  notificationsFrom Notification[]    @relation("notifier")
+  name              String
+  emailVerified     Boolean
+  image             String?
+  createdAt         DateTime
+  updatedAt         DateTime
+  sessions          Session[]
+  accounts          Account[]
+
+  @@map("user")
 }
 
 model Profile {
@@ -49,8 +58,8 @@ model Profile {
 }
 
 model Post {
-  id             Int           @id @default(autoincrement())
-  user           User          @relation(fields: [user_id], references: [id])
+  id             Int      @id @default(autoincrement())
+  user           User     @relation(fields: [user_id], references: [id])
   user_id        Int
   caption        String
   image_url      String?
@@ -59,11 +68,11 @@ model Post {
   likes_count    Int
   comments_count Int
   shares_count   Int
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @updatedAt
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
-  postLikes      PostLike[]
-  postComments   PostComment[]
+  postLikes    PostLike[]
+  postComments PostComment[]
 }
 
 model PostLike {
@@ -76,48 +85,48 @@ model PostLike {
 }
 
 model PostComment {
-  id           Int           @id @default(autoincrement())
-  post         Post          @relation(fields: [post_id], references: [id])
-  post_id      Int
-  user         User          @relation(fields: [user_id], references: [id])
-  user_id      Int
-  comment      String
-  likes_count  Int
-  created_at   DateTime      @default(now())
+  id          Int      @id @default(autoincrement())
+  post        Post     @relation(fields: [post_id], references: [id])
+  post_id     Int
+  user        User     @relation(fields: [user_id], references: [id])
+  user_id     Int
+  comment     String
+  likes_count Int
+  created_at  DateTime @default(now())
 
   commentLikes CommentLike[]
 }
 
 model CommentLike {
-  id          Int          @id @default(autoincrement())
-  comment     PostComment  @relation(fields: [comment_id], references: [id])
-  comment_id  Int
-  user        User         @relation(fields: [user_id], references: [id])
-  user_id     Int
-  created_at  DateTime     @default(now())
+  id         Int         @id @default(autoincrement())
+  comment    PostComment @relation(fields: [comment_id], references: [id])
+  comment_id Int
+  user       User        @relation(fields: [user_id], references: [id])
+  user_id    Int
+  created_at DateTime    @default(now())
 }
 
 model Follower {
-  id            Int    @id @default(autoincrement())
-  follower      User   @relation("follower", fields: [follower_id], references: [id])
-  follower_id   Int
-  following     User   @relation("following", fields: [following_id], references: [id])
-  following_id  Int
-  created_at    DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  follower     User     @relation("follower", fields: [follower_id], references: [id])
+  follower_id  Int
+  following    User     @relation("following", fields: [following_id], references: [id])
+  following_id Int
+  created_at   DateTime @default(now())
 }
 
 model ChatRoom {
-  id             Int               @id @default(autoincrement())
-  type           String
-  name           String?
-  created_at     DateTime          @default(now())
+  id         Int      @id @default(autoincrement())
+  type       String
+  name       String?
+  created_at DateTime @default(now())
 
-  participants   ChatParticipant[]
-  messages       Message[]
+  participants ChatParticipant[]
+  messages     Message[]
 }
 
 model ChatParticipant {
-  id                   Int       @id @default(autoincrement())
+  id                   Int      @id @default(autoincrement())
   chat_room            ChatRoom @relation(fields: [chat_room_id], references: [id])
   chat_room_id         Int
   user                 User     @relation(fields: [user_id], references: [id])
@@ -127,27 +136,72 @@ model ChatParticipant {
 }
 
 model Message {
-  id            Int       @id @default(autoincrement())
-  chat_room     ChatRoom  @relation(fields: [chat_room_id], references: [id])
-  chat_room_id  Int
-  sender        User      @relation("sentMessages", fields: [sender_id], references: [id])
-  sender_id     Int
-  text          String?
-  image_url     String?
-  file_url      String?
-  seen          Boolean
-  created_at    DateTime  @default(now())
+  id           Int      @id @default(autoincrement())
+  chat_room    ChatRoom @relation(fields: [chat_room_id], references: [id])
+  chat_room_id Int
+  sender       User     @relation("sentMessages", fields: [sender_id], references: [id])
+  sender_id    Int
+  text         String?
+  image_url    String?
+  file_url     String?
+  seen         Boolean
+  created_at   DateTime @default(now())
 }
 
 model Notification {
-  id            Int      @id @default(autoincrement())
-  user          User     @relation("notifiedUser", fields: [user_id], references: [id])
-  user_id       Int
-  from_user     User     @relation("notifier", fields: [from_user_id], references: [id])
-  from_user_id  Int
-  type          String
-  message       String
-  url           String
-  read          Boolean
-  created_at    DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  user         User     @relation("notifiedUser", fields: [user_id], references: [id])
+  user_id      Int
+  from_user    User     @relation("notifier", fields: [from_user_id], references: [id])
+  from_user_id Int
+  type         String
+  message      String
+  url          String
+  read         Boolean
+  created_at   DateTime @default(now())
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                Int
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
 }

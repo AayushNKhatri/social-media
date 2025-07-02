@@ -1,7 +1,5 @@
-import 'server-only'
 import { cookies } from 'next/headers'
 import {JWTPayload, SignJWT, jwtVerify} from 'jose'
-import { ca } from 'zod/v4/locales'
 
 const secretKey = process.env.SESSION_SECRET
 const encodedKey = new TextEncoder().encode(secretKey)
@@ -13,7 +11,7 @@ export async function encrypt(payload: JWTPayload) {
         .setExpirationTime('7d') // 7 days expiration
         .sign(encodedKey)
 }
-export async function decrypt(session: string | undefined = '') {
+export async function decrypt(session: string| undefined = '') {
     try{
         const { payload } = await jwtVerify(session, encodedKey, 
             { algorithms: ['HS256'], })
@@ -40,7 +38,8 @@ export async function createSession(userId: number) {
 }
 
 export async function updateSession() {
-    const session = (await cookies()).get('session')?.value
+    const cookieStore = await cookies()
+    const session = cookieStore.get('session')?.value
     const payload = await decrypt(session)
 
     if(!session || !payload) {
@@ -63,4 +62,12 @@ export async function deleteSession() {
     const cookiesStore = await cookies()
     cookiesStore.delete('session')
 }
-    
+export async function getSession() {
+    const cookiesStore = await cookies()
+    return cookiesStore.get('session')
+}
+
+export async function userValidation(){
+    const session = await getSession()
+    return !!session;
+}    

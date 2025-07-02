@@ -1,15 +1,13 @@
 'use client'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation';
 import {
   EyeIcon,
   EyeOffIcon,
-  UserIcon,
   LockIcon,
   MailIcon,
-  UserPlusIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { POST } from '../api/auth/login/route'
 const Register = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -17,11 +15,13 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    username: ''
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [passwordError, setPasswordError] = useState('')
+  const route = useRouter()
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -47,17 +47,19 @@ const Register = () => {
         headers: {'Content-Type': 'application/json',},
         body: JSON.stringify(formData),
         })
-        if(res.status !== 200)
-          return "error"
+        if(res.status === 201){
+          route.push('/Login')
+          setTimeout(() => {
+          setIsLoading(false)
+          alert('Registration successful!')
+        },  1500)
+        }
     }
     catch(err){
       console.error(`Error ${err}`)
     }
 
-    setTimeout(() => {
-      setIsLoading(false)
-      alert('Registration successful!')
-    }, 1500)
+ 
   }
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -95,7 +97,7 @@ const Register = () => {
                     required
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="text-black appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -115,9 +117,36 @@ const Register = () => {
                     required
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="text-black appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
+              </div>
+            </div>
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Username
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <MailIcon
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <input
+                  id="username"
+                  name="username"
+                  type="username"
+                  autoComplete="username"
+                  required
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="text-black focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
+                
+                />
               </div>
             </div>
             <div>
@@ -142,7 +171,7 @@ const Register = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
+                  className="text-black focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
                   placeholder="you@example.com"
                 />
               </div>
@@ -169,7 +198,7 @@ const Register = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className={`focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 sm:text-sm rounded-md py-2 px-3 border ${passwordError ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`text-black focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 sm:text-sm rounded-md py-2 px-3 border ${passwordError ? 'border-red-300' : 'border-gray-300'}`}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                   <button
@@ -214,7 +243,7 @@ const Register = () => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 sm:text-sm rounded-md py-2 px-3 border ${passwordError ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`text-black focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 sm:text-sm rounded-md py-2 px-3 border ${passwordError ? 'border-red-300' : 'border-gray-300'}`}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                   <button
@@ -246,7 +275,7 @@ const Register = () => {
                 name="terms"
                 type="checkbox"
                 required
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="mh-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <label
                 htmlFor="terms"
